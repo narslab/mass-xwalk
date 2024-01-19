@@ -256,7 +256,17 @@ def count_all_intersections(df, roads):
     df_split_intersections_only['num_crosswalks'] = df_split_intersections_only.apply(lambda row: calculate_num_crosswalks(row, roads), axis=1)
     df_copy.loc[df_split_intersections_only.index, 'num_crosswalks'] = df_split_intersections_only['num_crosswalks']
     return df_copy
-    
+
+def map_gridcode_to_class(gridcode):
+    if gridcode == 1:
+        return 'continental'
+    elif gridcode == 2:
+        return 'parallel'
+    elif gridcode == 3:
+        return 'solid'
+    else:
+        return 'unknown'  # You can handle other values if any
+
 def main(): 
     shape_file_path_2019 = 'post_processing/remaymonthlyreportformassxwalkproject/Image_Index_2019/COQ2019INDEX_POLY.shp'
     shape_file_path_2021 = 'post_processing/remaymonthlyreportformassxwalkproject/Image_Index_2021/COQ2021INDEX_POLY.shp'
@@ -362,6 +372,11 @@ def main():
     em19_count_final = count_all_intersections(em19_intersection_midblock_driveway, roads_arc_transformed_east19)
     elapsed = time.time() - start
     print(f"Counted intersecting segments (intersection only) in {timedelta(seconds=elapsed)} h/m/s")
+    
+    wm21_count_final['class'] = wm21_count_final['gridcode'].apply(map_gridcode_to_class)
+    wm19_count_final['class'] = wm19_count_final['gridcode'].apply(map_gridcode_to_class)
+    em21_count_final['class'] = em21_count_final['gridcode'].apply(map_gridcode_to_class)
+    em19_count_final['class'] = em19_count_final['gridcode'].apply(map_gridcode_to_class)
     
     # Drop rows where 'type' is 'other' or 'parking', or 'category' is 'fp'
 #     wm21_count_final_filtered = wm21_count_final[~((wm21_count_final['type'] == 'other') | (wm21_count_final['type'] == 'parking') | (wm21_count_final['category'] == 'fp'))]
